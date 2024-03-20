@@ -10,3 +10,12 @@ class State(BaseModel, Base):
     __tablename__ = 'states'
     name = Column(String(128), nullable=False)
     cities = relationship("City", cascade="all, delete", backref="state")
+
+    if getenv('HBNB_TYPE_STORAGE') != 'db':
+        @property
+        def cities(self):
+            """Return all the cities associated with the state"""
+            from models import storage
+            city_objects = storage.all(City)
+            return [city for city in city_objects.values()
+                    if city.state_id == self.id]
