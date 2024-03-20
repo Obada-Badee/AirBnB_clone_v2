@@ -14,51 +14,53 @@ from os import getenv
 
 
 class DBStorage:
-    """interaacts with the MySQL database"""
+    """This class manages storage of hbnb models in JSON format"""
     __engine = None
     __session = None
 
     def __init__(self):
-        """Instantiate a DBStorage object"""
+        """Initialize the database"""
         user = getenv('HBNB_MYSQL_USER')
-        pwd = getenv('HBNB_MYSQL_PWD')
+        passwd = getenv('HBNB_MYSQL_PWD')
         host = getenv('HBNB_MYSQL_HOST')
         db = getenv('HBNB_MYSQL_DB')
         env = getenv('HBNB_ENV')
 
-        url = f'mysql+mysqldb://{user}:{pwd}@{host}/{db}'
+        url = f"mysql+mysqldb://{user}:{passwd}@{host}/{db}"
         self.__engine = create_engine(url, pool_pre_ping=True)
         if env == "test":
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """query on the current database session"""
+        """Returns a dictionary of models currently in storage"""
         if cls is not None:
-            query = self.__session.query(cls)
+            q = self.__session.query(cls).all()
         else:
-            query = self.__session.query(State).all() + \
-                    self.__session.query(City).all() + \
-                    self.__session.query(User).all() + \
-                    self.__session.query(Place).all()
+            q = self.__session.query(State).all() + \
+                self.__session.query(City).all() + \
+                self.__session.query(User).all() + \
+                self.__session.query(Place).all()
         return {f"{obj.__class__.__name__}.{obj.id}": obj
-                for obj in query}
+                for obj in q}
 
     def new(self, obj):
-        """add the object to the current database session"""
+        """Adds new object to storage dictionary"""
         self.__session.add(obj)
 
     def save(self):
-        """commit all changes of the current database session"""
+        """Saves storage dictionary to file"""
         self.__session.commit()
 
+    def reload(self):
+        """Loads storage dictionary from file"""
+        Base.metadata.create_all(self.__engine)
+        Session = scoped_session(sessionmaker(bind=self.__engine,
+                                 expire_on_commit=False))
+        self.__session = Session()
+
     def delete(self, obj=None):
-        """delete from the current database session obj if not None"""
+        """
+        Delete an object if it is in the list of objects
+        """
         if obj is not None:
             self.__session.delete(obj)
-
-    def reload(self):
-        """reloads data from the database"""
-        Base.metadata.create_all(self.__engine)
-        sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(sess_factory)
-        self.__session = Session()
