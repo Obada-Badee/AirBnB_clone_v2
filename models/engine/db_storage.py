@@ -12,6 +12,7 @@ from models.place import Place
 from models.review import Review
 from os import getenv
 
+
 class DBStorage:
     """interaacts with the MySQL database"""
     __engine = None
@@ -41,7 +42,6 @@ class DBStorage:
                     self.__session.query(Place).all()
         return {f"{obj.__class__.__name__}.{obj.id}": obj
                 for obj in query}
-          
     
     def new(self, obj):
         """add the object to the current database session"""
