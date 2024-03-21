@@ -61,6 +61,8 @@ class DBStorage:
     def delete(self, obj=None):
         """
         Delete an object if it is in the list of objects
+        Args:
+            obj: The object that will be deleted
         """
         if obj is not None:
             self.__session.delete(obj)
