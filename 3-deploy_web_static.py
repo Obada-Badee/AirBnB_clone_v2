@@ -1,52 +1,36 @@
 #!/usr/bin/python3
-"""Deploy the static contents"""
-from fabric.api import *
-from os.path import exists
-from datetime import datetime
-
+"""
+Fabric script method:
+    do_deploy: deploys archive to webservers
+Usage:
+    fab -f 2-do_deploy_web_static.py
+    do_deploy:archive_path=versions/web_static_20170315003959.tgz
+    -i my_ssh_private_key -u ubuntu
+"""
+from fabric.api import env, put, run
+import os.path
 env.hosts = ['54.87.237.76', '54.83.130.208']
 
 
-@runs_once
-def do_pack():
-    """Create the .tgz file"""
-    now = datetime.now()
-    file_name = (f"versions/web_static_{now.year}{now.month}"
-                 f"{now.day}{now.hour}{now.minute}{now.second}.tgz")
-    full_command = f"tar -cvzf {file_name} web_static/"
-    local("mkdir -p versions")
-    command = local(full_command)
-    if (command.succeeded):
-        return file_name
-
-
 def do_deploy(archive_path):
-    """Deploy the static contents to the server"""
-    if exists(archive_path) is False:
+    """
+    Deploy archive to web server
+    """
+    if os.path.isfile(archive_path) is False:
         return False
     try:
-        file_with_extenstion = archive_path.split("/")[-1]
-        file_name = file_with_extenstion.split(".")[0]
-        extraction_path = f'/data/web_static/releases/{file_name}/'
-        extracted_content = f'{extraction_path}/web_static/*'
-        put(archive_path, '/tmp/')
-        run(f"mkdir -p {extraction_path}")
-        run(f"tar -xzf /tmp/{file_with_extenstion} -C {extraction_path}")
-        run(f"rm /tmp/{file_with_extenstion}")
-        run(f'mv {extracted_content} {extraction_path}')
-        run(f'rm -rf {extraction_path}/web_static/')
-        run('rm -rf /data/web_static/current')
-        run(f'ln -s {extraction_path} /data/web_static/current')
-        print("New version deployed!")
+        filename = archive_path.split("/")[-1]
+        no_ext = filename.split(".")[0]
+        path_no_ext = "/data/web_static/releases/{}/".format(no_ext)
+        symlink = "/data/web_static/current"
+        put(archive_path, "/tmp/")
+        run("mkdir -p {}".format(path_no_ext))
+        run("tar -xzf /tmp/{} -C {}".format(filename, path_no_ext))
+        run("rm /tmp/{}".format(filename))
+        run("mv {}web_static/* {}".format(path_no_ext, path_no_ext))
+        run("rm -rf {}web_static".format(path_no_ext))
+        run("rm -rf {}".format(symlink))
+        run("ln -s {} {}".format(path_no_ext, symlink))
         return True
-    except Exception:
-        return False
-
-
-def deploy():
-    """Do a comlete deployment"""
-    try:
-        archive_path = do_pack()
-        return do_deploy(archive_path)
-    except Exception:
+    except:
         return False
