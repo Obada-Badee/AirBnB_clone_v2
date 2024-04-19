@@ -9,7 +9,7 @@ Usage:
 """
 from fabric.api import env, put, run
 import os.path
-env.hosts = ['54.87.237.76', '54.83.130.208']
+env.hosts = ['100.25.202.225', '54.87.237.76']
 
 
 def do_pack():
