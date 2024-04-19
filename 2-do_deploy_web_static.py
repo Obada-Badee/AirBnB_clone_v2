@@ -12,6 +12,7 @@ import os.path
 import paramiko
 env.hosts = ['100.25.202.225', '54.87.237.76']
 
+
 def do_deploy(archive_path):
     """Distributes an archive to a web server.
 
