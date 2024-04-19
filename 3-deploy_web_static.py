@@ -1,14 +1,12 @@
 #!/usr/bin/python3
-"""
-Fabric script method:
-    do_deploy: deploys archive to webservers
-Usage:
-    fab -f 2-do_deploy_web_static.py
-    do_deploy:archive_path=versions/web_static_20170315003959.tgz
-    -i my_ssh_private_key -u ubuntu
-"""
-from fabric.api import env, put, run
+# Fabfile to create and distribute an archive to a web server.
 import os.path
+from datetime import datetime
+from fabric.api import env
+from fabric.api import local
+from fabric.api import put
+from fabric.api import run
+
 env.hosts = ['100.25.202.225', '54.87.237.76']
 
 
