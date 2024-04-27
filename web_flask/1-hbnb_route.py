@@ -13,6 +13,7 @@ def home():
     """Home route"""
     return "Hello HBNB!"
 
+
 @app.route('/hbnb', strict_slashes=False)
 def hbhb():
     """Displays HBNB"""
