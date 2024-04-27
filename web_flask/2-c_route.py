@@ -21,10 +21,10 @@ def hbhb():
     return "HBNB"
 
 
-@app.route('/c/<text>')
+@app.route("/c/<text>")
 def c_text(text):
     """Displays C <text>"""
-    text = text.replace('_', ' ')
+    text = text.replace("_", " ")
     return f"C {escape(text)}"
 
 
