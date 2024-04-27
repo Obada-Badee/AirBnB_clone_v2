@@ -18,13 +18,13 @@ def tear_down(e):
     storage.close()
 
 
-@app.route("/states_list")
+@app.route("/cities_by_states")
 def list_states():
     """
-    List all the states ordered by name from A to Z
+    List all the cities by thier states ordered by name from A to Z
     """
     states = storage.all(State)
-    return render_template('7-states_list.html', states=states)
+    return render_template('8-cities_by_states.html', states=states)
 
 
 if (__name__ == "__main__"):
